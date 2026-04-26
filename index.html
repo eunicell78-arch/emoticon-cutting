@@ -265,11 +265,61 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   }
   
-  .cell canvas {
+  .cell canvas,
+  .cell .cell-image {
     width: 100%;
     height: auto;
     display: block;
     border-radius: 8px;
+    -webkit-touch-callout: default; /* iOS에서 길게 눌러 저장 활성화 */
+  }
+  
+  .cell-hint {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.65);
+    color: white;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 1;
+  }
+  
+  /* 모바일에서만 안내 라벨 표시 */
+  @media (hover: none) and (pointer: coarse) {
+    .cell-hint {
+      opacity: 1;
+    }
+  }
+  
+  .cell-share {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(77, 150, 255, 0.9);
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 2;
+  }
+  
+  .cell-share:hover {
+    background: #4D96FF;
+    transform: scale(1.1);
   }
   
   .cell-download {
@@ -428,7 +478,7 @@
   
   <div class="controls" id="controls">
     <div class="help-text">
-      💡 <strong>모드:</strong> 균일한 시트는 <strong>격자 모드</strong>, 불규칙한 이미지는 <strong>자동 감지</strong> &nbsp;|&nbsp; <strong>형식:</strong> 깨끗하게 쓰려면 <strong>PNG</strong>, 카톡 투명배경은 <strong>GIF</strong>
+      💡 <strong>📱 핸드폰:</strong> 이미지 길게 눌러 저장하거나 파란 📤 버튼으로 카톡에 바로 보내세요! &nbsp;|&nbsp; <strong>모드:</strong> 균일한 시트 → <strong>격자</strong>, 불규칙 → <strong>자동 감지</strong> &nbsp;|&nbsp; <strong>형식:</strong> 깨끗하게 → <strong>PNG</strong>, 카톡 투명배경 → <strong>GIF</strong>
     </div>
     <div class="control-row">
       <div class="mode-selector">
@@ -825,12 +875,34 @@
     cell.className = 'cell';
     cell.innerHTML = `<div class="cell-number">${count}</div>`;
     
-    const displayCanvas = document.createElement('canvas');
-    displayCanvas.width = trimmed.width;
-    displayCanvas.height = trimmed.height;
-    displayCanvas.getContext('2d').drawImage(trimmed, 0, 0);
-    cell.appendChild(displayCanvas);
+    // 캔버스 대신 img 태그 사용 (모바일에서 길게 눌러 저장 가능)
+    const img = document.createElement('img');
+    img.className = 'cell-image';
+    img.alt = `이모티콘 ${count}`;
+    trimmed.toBlob((blob) => {
+      img.src = URL.createObjectURL(blob);
+    }, 'image/png');
+    cell.appendChild(img);
     
+    // 모바일 안내 라벨
+    const hint = document.createElement('div');
+    hint.className = 'cell-hint';
+    hint.textContent = '📱 길게 눌러 저장';
+    cell.appendChild(hint);
+    
+    // 공유 버튼 (카톡 등으로 바로 보내기)
+    const shareBtn = document.createElement('button');
+    shareBtn.className = 'cell-share';
+    shareBtn.innerHTML = '📤';
+    shareBtn.title = '공유하기';
+    shareBtn.onclick = async (e) => {
+      e.preventDefault();
+      const format = document.querySelector('input[name="format"]:checked').value;
+      await shareCanvas(trimmed, count, format);
+    };
+    cell.appendChild(shareBtn);
+    
+    // 다운로드 버튼
     const dlBtn = document.createElement('button');
     dlBtn.className = 'cell-download';
     dlBtn.innerHTML = '⬇';
@@ -847,6 +919,46 @@
     cell.appendChild(dlBtn);
     
     grid.appendChild(cell);
+  }
+  
+  // 공유 API (카톡, 사진 저장 등 OS 공유 메뉴 호출)
+  async function shareCanvas(canvas, count, format) {
+    try {
+      let blob, filename, mimeType;
+      
+      if (format === 'gif') {
+        blob = await canvasToGifBlob(canvas);
+        filename = `emoticon_${String(count).padStart(2, '0')}.gif`;
+        mimeType = 'image/gif';
+      } else {
+        blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        filename = `emoticon_${String(count).padStart(2, '0')}.png`;
+        mimeType = 'image/png';
+      }
+      
+      const file = new File([blob], filename, { type: mimeType });
+      
+      // 모바일: 공유 API 사용 (카톡, 사진 저장 등)
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: '이모티콘'
+        });
+      } else {
+        // 데스크톱: 그냥 다운로드
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      // 사용자가 공유 취소한 경우는 무시
+      if (err.name !== 'AbortError') {
+        alert('공유 중 오류가 발생했어요: ' + err.message);
+      }
+    }
   }
   
   // 모드 전환 시 컨트롤 표시/숨김
