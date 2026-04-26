@@ -40,6 +40,259 @@
     color: #6B6B6B;
   }
   
+  /* 핸드폰 사용자 안내 */
+  .browser-notice {
+    background: linear-gradient(135deg, #FFF4D6 0%, #FFE5B4 100%);
+    border: 2px solid #FFB84D;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 4px 15px rgba(255, 184, 77, 0.15);
+  }
+  
+  .notice-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+  
+  .notice-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  
+  .notice-text strong {
+    color: #D97706;
+    font-size: 1.05rem;
+  }
+  
+  .notice-text strong + span strong {
+    color: #FF6B9D;
+    background: white;
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+  }
+  
+  .notice-text > span {
+    font-size: 0.95rem;
+    color: #7A5A1F;
+  }
+  
+  /* 매뉴얼 토글 버튼 */
+  .manual-toggle {
+    width: 100%;
+    background: linear-gradient(135deg, #FFE5EC 0%, #FFF5E1 100%);
+    border: 2px solid #FFB6C1;
+    border-radius: 16px;
+    padding: 16px 24px;
+    font-family: 'Gaegu', cursive;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #FF6B9D;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+  }
+  
+  .manual-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.2);
+  }
+  
+  .toggle-arrow {
+    transition: transform 0.3s ease;
+    font-size: 0.9rem;
+  }
+  
+  .manual-toggle.open .toggle-arrow {
+    transform: rotate(180deg);
+  }
+  
+  /* 매뉴얼 본문 */
+  .manual {
+    background: white;
+    border-radius: 24px;
+    padding: 30px 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    display: none;
+    animation: slideDown 0.4s ease;
+  }
+  
+  .manual.open {
+    display: block;
+  }
+  
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .manual-title {
+    font-family: 'Gaegu', cursive;
+    font-size: 2rem;
+    color: #FF6B9D;
+    text-align: center;
+    margin-bottom: 25px;
+    text-shadow: 2px 2px 0 #FFE5B4;
+  }
+  
+  .manual-step {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+    border-bottom: 2px dashed #FFE5EC;
+  }
+  
+  .manual-step:last-of-type {
+    border-bottom: none;
+  }
+  
+  .step-number {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #FF6B9D, #FF8FAB);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Gaegu', cursive;
+    font-size: 1.8rem;
+    font-weight: 700;
+    box-shadow: 0 3px 10px rgba(255, 107, 157, 0.3);
+  }
+  
+  .step-content {
+    flex: 1;
+  }
+  
+  .step-content h3 {
+    font-family: 'Gaegu', cursive;
+    font-size: 1.5rem;
+    color: #FF6B9D;
+    margin-bottom: 10px;
+  }
+  
+  .step-content p {
+    margin-bottom: 8px;
+    line-height: 1.6;
+    color: #4A4A4A;
+  }
+  
+  .step-content strong {
+    color: #FF6B9D;
+    background: #FFF5F8;
+    padding: 1px 6px;
+    border-radius: 5px;
+  }
+  
+  .step-tip {
+    background: #FFF9E6;
+    border-left: 3px solid #FFD93D;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-top: 8px !important;
+    font-size: 0.9rem;
+    color: #7A6F3D !important;
+  }
+  
+  .step-tip strong {
+    background: transparent !important;
+    color: #D97706 !important;
+    padding: 0 !important;
+  }
+  
+  /* FAQ */
+  .manual-faq {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 3px solid #FFE5EC;
+  }
+  
+  .manual-faq h3 {
+    font-family: 'Gaegu', cursive;
+    font-size: 1.6rem;
+    color: #FF6B9D;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  .manual-faq details {
+    background: #FFF9FB;
+    border-radius: 12px;
+    padding: 12px 18px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .manual-faq details[open] {
+    background: #FFE5EC;
+    box-shadow: 0 3px 10px rgba(255, 107, 157, 0.15);
+  }
+  
+  .manual-faq summary {
+    color: #555;
+    font-size: 0.95rem;
+    list-style: none;
+    padding: 4px 0;
+  }
+  
+  .manual-faq summary::-webkit-details-marker {
+    display: none;
+  }
+  
+  .manual-faq summary::before {
+    content: "▶ ";
+    color: #FF6B9D;
+    transition: transform 0.2s ease;
+    display: inline-block;
+  }
+  
+  .manual-faq details[open] summary::before {
+    content: "▼ ";
+  }
+  
+  .manual-faq details p {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #FFB6C1;
+    color: #555;
+    line-height: 1.7;
+    font-size: 0.92rem;
+  }
+  
+  .manual-faq details strong {
+    color: #FF6B9D;
+  }
+  
+  @media (max-width: 600px) {
+    .manual-step {
+      flex-direction: column;
+      gap: 12px;
+    }
+    .step-number {
+      width: 42px;
+      height: 42px;
+      font-size: 1.5rem;
+    }
+    .browser-notice {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+  
   .upload-area {
     background: white;
     border: 4px dashed #FFB6C1;
@@ -467,6 +720,98 @@
   <div class="header">
     <h1>✂️ 이모티콘 컷팅 메이커</h1>
     <p>이모티콘 시트를 올리면 12개로 잘라주고 배경까지 깔끔하게 지워드려요!</p>
+  </div>
+  
+  <div class="browser-notice">
+    <span class="notice-icon">📱</span>
+    <div class="notice-text">
+      <strong>핸드폰 사용자 필독!</strong>
+      <span>삼성 인터넷 말고 <strong>크롬(Chrome)</strong>으로 열어주세요. 카톡 공유랑 이미지 저장이 잘 돼요!</span>
+    </div>
+  </div>
+  
+  <button class="manual-toggle" id="manualToggle">
+    📖 사용 설명서 보기
+    <span class="toggle-arrow">▼</span>
+  </button>
+  
+  <div class="manual" id="manual">
+    <h2 class="manual-title">🌟 처음 오셨나요? 따라하기만 하면 끝!</h2>
+    
+    <div class="manual-step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h3>이미지 올리기</h3>
+        <p>이모티콘이 모여있는 한 장짜리 이미지를 준비해요. 분홍색 박스를 누르거나 사진을 끌어다 놓으면 돼요.</p>
+        <p class="step-tip">📌 카카오 이모티콘 시트, 제미나이로 만든 그림 다 가능!</p>
+      </div>
+    </div>
+    
+    <div class="manual-step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h3>자르기 모드 선택</h3>
+        <p><strong>📐 격자 모드</strong> — 12개가 가지런히 4×3으로 배치된 시트일 때</p>
+        <p><strong>🎯 자동 감지</strong> — 제미나이처럼 글자랑 그림이 자유롭게 흩어진 이미지일 때</p>
+        <p class="step-tip">📌 잘 모르겠으면 <strong>격자 모드</strong>부터 해보세요!</p>
+      </div>
+    </div>
+    
+    <div class="manual-step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h3>저장 형식 선택</h3>
+        <p><strong>🖼️ PNG</strong> — 원본 그대로 깨끗하게 (블로그·인스타용 추천)</p>
+        <p><strong>🎞️ GIF</strong> — 배경이 투명하게 처리됨 (카톡 보낼 때 추천)</p>
+        <p class="step-tip">📌 카톡에 PNG 보내도 흰 배경이라 잘 보여요!</p>
+      </div>
+    </div>
+    
+    <div class="manual-step">
+      <div class="step-number">4</div>
+      <div class="step-content">
+        <h3>자르기 시작 → 결과 확인</h3>
+        <p>분홍색 <strong>"✨ 자르기 시작!"</strong> 버튼 누르면 12개로 잘라서 보여줘요. 마음에 안 들면 위쪽 설정 바꾸고 다시 누르면 됩니다.</p>
+        <p class="step-tip">📌 얼굴이 얼룩덜룩? → PNG 모드로 / 배경 안 지워짐? → GIF + 강도 240</p>
+      </div>
+    </div>
+    
+    <div class="manual-step">
+      <div class="step-number">5</div>
+      <div class="step-content">
+        <h3>저장하기 (3가지 방법)</h3>
+        <p><strong>① 갤러리에 저장 (제일 편해요!)</strong><br>
+        이미지를 <strong>꾹~ 길게 누르기</strong> → "이미지 저장" 선택 → 갤러리에 들어가요!</p>
+        <p><strong>② 카톡으로 바로 전송</strong><br>
+        파란색 <strong>📤 버튼</strong> 누르기 → 카카오톡 선택 → 친구 선택 → 끝!</p>
+        <p><strong>③ 다운로드</strong><br>
+        분홍색 <strong>⬇ 버튼</strong> 누르기 (크롬 다운로드 폴더에 저장됨)</p>
+        <p class="step-tip">📌 12개 한번에 받고 싶으면 맨 아래 <strong>"📦 전체 ZIP 다운로드"</strong></p>
+      </div>
+    </div>
+    
+    <div class="manual-faq">
+      <h3>❓ 자주 묻는 질문</h3>
+      <details>
+        <summary><strong>Q. 카톡에 보냈더니 흰 배경이 나와요!</strong></summary>
+        <p>카톡은 일반 이미지에서 투명 배경을 지원하지 않아요. <strong>GIF</strong> 형식으로 저장해서 보내면 투명하게 보여요. PNG는 블로그·인스타에서만 투명하게 보입니다.</p>
+      </details>
+      <details>
+        <summary><strong>Q. 얼굴이 얼룩덜룩하게 잘렸어요</strong></summary>
+        <p><strong>PNG 형식</strong>으로 바꿔보세요! PNG는 원본을 건드리지 않고 자르기만 해서 얼굴이 깨끗하게 나와요.</p>
+      </details>
+      <details>
+        <summary><strong>Q. 다운로드한 파일을 못 찾겠어요 (핸드폰)</strong></summary>
+        <p>핸드폰은 다운로드 파일이 갤러리에 자동으로 안 들어가요. <strong>이미지를 길게 눌러서 저장</strong>하거나 <strong>📤 공유 버튼</strong>을 사용하세요. 더 편해요!</p>
+      </details>
+      <details>
+        <summary><strong>Q. 자동 감지 모드가 이상하게 잘려요</strong></summary>
+        <p>설정값을 조절해보세요:<br>
+        • 글자랑 그림이 따로따로 잘림 → "병합 거리" 늘리기 (50→100)<br>
+        • 너무 묶여서 한 덩어리가 됨 → "병합 거리" 줄이기 (50→20)<br>
+        • 작은 조각이 많이 잡힘 → "최소 크기" 늘리기 (80→150)</p>
+      </details>
+    </div>
   </div>
   
   <label for="fileInput" class="upload-area" id="uploadArea">
@@ -1187,6 +1532,17 @@
     
     downloadAllBtn.disabled = false;
     downloadAllBtn.innerHTML = '📦 전체 ZIP 파일로 다운로드';
+  });
+  
+  // 매뉴얼 토글
+  const manualToggle = document.getElementById('manualToggle');
+  const manual = document.getElementById('manual');
+  manualToggle.addEventListener('click', () => {
+    const isOpen = manual.classList.toggle('open');
+    manualToggle.classList.toggle('open');
+    manualToggle.querySelector('span:not(.toggle-arrow)') 
+      ? null 
+      : manualToggle.firstChild.textContent = isOpen ? '📖 사용 설명서 닫기 ' : '📖 사용 설명서 보기 ';
   });
 </script>
 </body>
