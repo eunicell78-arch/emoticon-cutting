@@ -340,7 +340,8 @@
     color: #FF6B9D;
   }
   
-  .format-selector {
+  .format-selector,
+  .mode-selector {
     display: flex;
     align-items: center;
     gap: 15px;
@@ -349,6 +350,10 @@
     padding: 12px 18px;
     border-radius: 14px;
     width: 100%;
+  }
+  
+  .mode-selector {
+    background: #F0F9FF;
   }
   
   .format-label {
@@ -423,9 +428,22 @@
   
   <div class="controls" id="controls">
     <div class="help-text">
-      💡 <strong>팁:</strong> 카톡에서 투명 배경 살리려면 <strong>GIF</strong>로 저장하세요! SNS·블로그용은 <strong>PNG</strong>가 더 깨끗해요.
+      💡 <strong>팁:</strong> 격자가 일정한 시트는 <strong>격자 모드</strong>, 제미나이 등으로 만든 불규칙한 이미지는 <strong>자동 감지 모드</strong>를 쓰세요!
     </div>
     <div class="control-row">
+      <div class="mode-selector">
+        <label class="format-label">✂️ 자르기 모드:</label>
+        <label class="format-option">
+          <input type="radio" name="mode" value="grid" checked>
+          <span>격자 모드 <small>(균일한 12분할)</small></span>
+        </label>
+        <label class="format-option">
+          <input type="radio" name="mode" value="auto">
+          <span>자동 감지 <small>(불규칙·제미나이 이미지)</small></span>
+        </label>
+      </div>
+    </div>
+    <div class="control-row" id="gridControls">
       <div class="control-group">
         <label>가로:</label>
         <input type="number" id="cols" value="4" min="1" max="10">
@@ -443,7 +461,23 @@
       </div>
       <div class="control-group">
         <label>배경 제거 강도:</label>
-        <input type="number" id="threshold" value="240" min="200" max="255">
+        <input type="number" id="threshold" value="220" min="200" max="255">
+      </div>
+    </div>
+    <div class="control-row" id="autoControls" style="display:none;">
+      <div class="control-group">
+        <label>최소 크기:</label>
+        <input type="number" id="minSize" value="80" min="20" max="500">
+        <span>px (이보다 작으면 무시)</span>
+      </div>
+      <div class="control-group">
+        <label>병합 거리:</label>
+        <input type="number" id="mergeDist" value="30" min="0" max="200">
+        <span>px (가까운 객체끼리 묶기)</span>
+      </div>
+      <div class="control-group">
+        <label>배경 감도:</label>
+        <input type="number" id="autoThreshold" value="230" min="200" max="255">
       </div>
     </div>
     <div class="control-row">
@@ -557,69 +591,12 @@
     processedCanvases = [];
     
     setTimeout(() => {
-      const cols = parseInt(document.getElementById('cols').value);
-      const rows = parseInt(document.getElementById('rows').value);
-      const padding = parseInt(document.getElementById('padding').value);
-      const threshold = parseInt(document.getElementById('threshold').value);
+      const mode = document.querySelector('input[name="mode"]:checked').value;
       
-      const cellWidth = originalImage.width / cols;
-      const cellHeight = originalImage.height / rows;
-      
-      let count = 1;
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-          // 셀 영역 자르기
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          
-          const sx = col * cellWidth + padding;
-          const sy = row * cellHeight + padding;
-          const sw = cellWidth - padding * 2;
-          const sh = cellHeight - padding * 2;
-          
-          canvas.width = sw;
-          canvas.height = sh;
-          
-          ctx.drawImage(originalImage, sx, sy, sw, sh, 0, 0, sw, sh);
-          
-          // 배경 제거 (흰색/밝은색 → 투명)
-          removeBackground(ctx, canvas.width, canvas.height, threshold);
-          
-          // 빈 영역 트리밍
-          const trimmed = trimCanvas(canvas);
-          
-          processedCanvases.push(trimmed);
-          
-          // 셀 UI 생성
-          const cell = document.createElement('div');
-          cell.className = 'cell';
-          cell.innerHTML = `<div class="cell-number">${count}</div>`;
-          
-          const displayCanvas = document.createElement('canvas');
-          displayCanvas.width = trimmed.width;
-          displayCanvas.height = trimmed.height;
-          displayCanvas.getContext('2d').drawImage(trimmed, 0, 0);
-          cell.appendChild(displayCanvas);
-          
-          const dlBtn = document.createElement('button');
-          dlBtn.className = 'cell-download';
-          dlBtn.innerHTML = '⬇';
-          dlBtn.title = '다운로드';
-          const cellNum = count;
-          dlBtn.onclick = (e) => {
-            e.preventDefault();
-            const format = document.querySelector('input[name="format"]:checked').value;
-            if (format === 'gif') {
-              downloadAsGif(trimmed, `emoticon_${String(cellNum).padStart(2, '0')}.gif`);
-            } else {
-              downloadCanvas(trimmed, `emoticon_${String(cellNum).padStart(2, '0')}.png`);
-            }
-          };
-          cell.appendChild(dlBtn);
-          
-          grid.appendChild(cell);
-          count++;
-        }
+      if (mode === 'grid') {
+        processGridMode();
+      } else {
+        processAutoMode();
       }
       
       loading.classList.remove('active');
@@ -628,21 +605,269 @@
     }, 100);
   }
   
+  function processGridMode() {
+    const cols = parseInt(document.getElementById('cols').value);
+    const rows = parseInt(document.getElementById('rows').value);
+    const padding = parseInt(document.getElementById('padding').value);
+    const threshold = parseInt(document.getElementById('threshold').value);
+    
+    const cellWidth = originalImage.width / cols;
+    const cellHeight = originalImage.height / rows;
+    
+    let count = 1;
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        const sx = col * cellWidth + padding;
+        const sy = row * cellHeight + padding;
+        const sw = cellWidth - padding * 2;
+        const sh = cellHeight - padding * 2;
+        
+        canvas.width = sw;
+        canvas.height = sh;
+        
+        ctx.drawImage(originalImage, sx, sy, sw, sh, 0, 0, sw, sh);
+        removeBackground(ctx, canvas.width, canvas.height, threshold);
+        
+        const trimmed = trimCanvas(canvas);
+        processedCanvases.push(trimmed);
+        addCellToGrid(trimmed, count);
+        count++;
+      }
+    }
+  }
+  
+  function processAutoMode() {
+    const minSize = parseInt(document.getElementById('minSize').value);
+    const mergeDist = parseInt(document.getElementById('mergeDist').value);
+    const threshold = parseInt(document.getElementById('autoThreshold').value);
+    
+    // 1단계: 전체 이미지를 캔버스에 그리기
+    const fullCanvas = document.createElement('canvas');
+    fullCanvas.width = originalImage.width;
+    fullCanvas.height = originalImage.height;
+    const fullCtx = fullCanvas.getContext('2d');
+    fullCtx.drawImage(originalImage, 0, 0);
+    
+    // 2단계: 마스크 생성 (배경 = 0, 객체 = 1)
+    const imageData = fullCtx.getImageData(0, 0, fullCanvas.width, fullCanvas.height);
+    const data = imageData.data;
+    const w = fullCanvas.width;
+    const h = fullCanvas.height;
+    
+    // 모서리 색상 샘플로 배경색 추정
+    const cornerSize = 20;
+    let avgR = 0, avgG = 0, avgB = 0, sampleCount = 0;
+    [[0,0],[w-cornerSize,0],[0,h-cornerSize],[w-cornerSize,h-cornerSize]].forEach(([sx,sy]) => {
+      for (let y = sy; y < sy + cornerSize && y < h; y++) {
+        for (let x = sx; x < sx + cornerSize && x < w; x++) {
+          const idx = (y * w + x) * 4;
+          avgR += data[idx]; avgG += data[idx+1]; avgB += data[idx+2];
+          sampleCount++;
+        }
+      }
+    });
+    avgR /= sampleCount; avgG /= sampleCount; avgB /= sampleCount;
+    
+    const tolerance = (threshold - 200) * 1.5 + 15;
+    const mask = new Uint8Array(w * h);
+    
+    for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+      const dist = Math.sqrt(
+        Math.pow(data[i] - avgR, 2) + 
+        Math.pow(data[i+1] - avgG, 2) + 
+        Math.pow(data[i+2] - avgB, 2)
+      );
+      mask[j] = dist > tolerance ? 1 : 0;
+    }
+    
+    // 3단계: 마스크를 dilate (mergeDist만큼 팽창)해서 가까운 객체 묶기
+    const dilatedMask = dilate(mask, w, h, Math.floor(mergeDist / 2));
+    
+    // 4단계: connected components 찾기
+    const components = findConnectedComponents(dilatedMask, w, h, minSize);
+    
+    // 5단계: bounding box 기준으로 위에서 아래, 왼쪽에서 오른쪽 정렬
+    components.sort((a, b) => {
+      const rowA = Math.floor(a.minY / 100);
+      const rowB = Math.floor(b.minY / 100);
+      if (rowA !== rowB) return rowA - rowB;
+      return a.minX - b.minX;
+    });
+    
+    // 6단계: 각 컴포넌트의 bounding box로 잘라내기
+    let count = 1;
+    components.forEach(comp => {
+      const margin = 8;
+      const sx = Math.max(0, comp.minX - margin);
+      const sy = Math.max(0, comp.minY - margin);
+      const sw = Math.min(w - sx, comp.maxX - comp.minX + margin * 2);
+      const sh = Math.min(h - sy, comp.maxY - comp.minY + margin * 2);
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = sw;
+      canvas.height = sh;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(originalImage, sx, sy, sw, sh, 0, 0, sw, sh);
+      
+      // 배경 제거 적용
+      removeBackground(ctx, sw, sh, threshold);
+      const trimmed = trimCanvas(canvas);
+      
+      processedCanvases.push(trimmed);
+      addCellToGrid(trimmed, count);
+      count++;
+    });
+    
+    if (components.length === 0) {
+      alert('객체를 찾지 못했어요. "최소 크기"를 줄이거나 "배경 감도"를 조절해보세요.');
+    }
+  }
+  
+  // 마스크 팽창 (dilation) - 가까운 객체 연결
+  function dilate(mask, w, h, radius) {
+    if (radius <= 0) return mask;
+    const result = new Uint8Array(w * h);
+    // 효율을 위해 두 단계 (가로 → 세로)로 분리
+    const temp = new Uint8Array(w * h);
+    
+    // 가로 방향
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        let val = 0;
+        for (let dx = -radius; dx <= radius && !val; dx++) {
+          const nx = x + dx;
+          if (nx >= 0 && nx < w && mask[y * w + nx]) val = 1;
+        }
+        temp[y * w + x] = val;
+      }
+    }
+    // 세로 방향
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        let val = 0;
+        for (let dy = -radius; dy <= radius && !val; dy++) {
+          const ny = y + dy;
+          if (ny >= 0 && ny < h && temp[ny * w + x]) val = 1;
+        }
+        result[y * w + x] = val;
+      }
+    }
+    return result;
+  }
+  
+  // Connected components labeling (BFS 기반)
+  function findConnectedComponents(mask, w, h, minSize) {
+    const visited = new Uint8Array(w * h);
+    const components = [];
+    
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const idx = y * w + x;
+        if (mask[idx] && !visited[idx]) {
+          // BFS로 연결된 픽셀 탐색
+          const queue = [[x, y]];
+          visited[idx] = 1;
+          let minX = x, maxX = x, minY = y, maxY = y;
+          let pixelCount = 0;
+          
+          while (queue.length > 0) {
+            const [cx, cy] = queue.shift();
+            pixelCount++;
+            if (cx < minX) minX = cx;
+            if (cx > maxX) maxX = cx;
+            if (cy < minY) minY = cy;
+            if (cy > maxY) maxY = cy;
+            
+            // 4방향 이웃
+            const neighbors = [[cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]];
+            for (const [nx, ny] of neighbors) {
+              if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+                const nidx = ny * w + nx;
+                if (mask[nidx] && !visited[nidx]) {
+                  visited[nidx] = 1;
+                  queue.push([nx, ny]);
+                }
+              }
+            }
+          }
+          
+          // 최소 크기 필터링
+          const boxW = maxX - minX;
+          const boxH = maxY - minY;
+          if (boxW >= minSize && boxH >= minSize) {
+            components.push({ minX, maxX, minY, maxY, pixelCount });
+          }
+        }
+      }
+    }
+    
+    return components;
+  }
+  
+  function addCellToGrid(trimmed, count) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.innerHTML = `<div class="cell-number">${count}</div>`;
+    
+    const displayCanvas = document.createElement('canvas');
+    displayCanvas.width = trimmed.width;
+    displayCanvas.height = trimmed.height;
+    displayCanvas.getContext('2d').drawImage(trimmed, 0, 0);
+    cell.appendChild(displayCanvas);
+    
+    const dlBtn = document.createElement('button');
+    dlBtn.className = 'cell-download';
+    dlBtn.innerHTML = '⬇';
+    dlBtn.title = '다운로드';
+    dlBtn.onclick = (e) => {
+      e.preventDefault();
+      const format = document.querySelector('input[name="format"]:checked').value;
+      if (format === 'gif') {
+        downloadAsGif(trimmed, `emoticon_${String(count).padStart(2, '0')}.gif`);
+      } else {
+        downloadCanvas(trimmed, `emoticon_${String(count).padStart(2, '0')}.png`);
+      }
+    };
+    cell.appendChild(dlBtn);
+    
+    grid.appendChild(cell);
+  }
+  
+  // 모드 전환 시 컨트롤 표시/숨김
+  document.querySelectorAll('input[name="mode"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      document.getElementById('gridControls').style.display = mode === 'grid' ? 'flex' : 'none';
+      document.getElementById('autoControls').style.display = mode === 'auto' ? 'flex' : 'none';
+    });
+  });
+  
   function removeBackground(ctx, width, height, threshold) {
     const imageData = ctx.getImageData(0, 0, width, height);
     const data = imageData.data;
     
-    // 가장자리 색상 샘플링 (배경색 추정)
+    // 모서리 4개 영역의 색상만 샘플링 (피부색·머리카락 안 섞이도록)
+    const cornerSize = Math.min(15, Math.floor(Math.min(width, height) / 10));
     const samples = [];
-    const step = 5;
-    for (let x = 0; x < width; x += step) {
-      samples.push([data[(0 * width + x) * 4], data[(0 * width + x) * 4 + 1], data[(0 * width + x) * 4 + 2]]);
-      samples.push([data[((height-1) * width + x) * 4], data[((height-1) * width + x) * 4 + 1], data[((height-1) * width + x) * 4 + 2]]);
+    
+    function sampleCorner(startX, startY) {
+      for (let y = startY; y < startY + cornerSize; y++) {
+        for (let x = startX; x < startX + cornerSize; x++) {
+          if (x >= 0 && x < width && y >= 0 && y < height) {
+            const idx = (y * width + x) * 4;
+            samples.push([data[idx], data[idx + 1], data[idx + 2]]);
+          }
+        }
+      }
     }
-    for (let y = 0; y < height; y += step) {
-      samples.push([data[(y * width + 0) * 4], data[(y * width + 0) * 4 + 1], data[(y * width + 0) * 4 + 2]]);
-      samples.push([data[(y * width + width-1) * 4], data[(y * width + width-1) * 4 + 1], data[(y * width + width-1) * 4 + 2]]);
-    }
+    
+    sampleCorner(0, 0);                                    // 좌상
+    sampleCorner(width - cornerSize, 0);                   // 우상
+    sampleCorner(0, height - cornerSize);                  // 좌하
+    sampleCorner(width - cornerSize, height - cornerSize); // 우하
     
     // 평균 배경색
     let avgR = 0, avgG = 0, avgB = 0;
@@ -651,25 +876,29 @@
     avgG /= samples.length;
     avgB /= samples.length;
     
-    // 색상 거리 기반 배경 제거
+    // threshold 슬라이더 값(200~255) → 색상 거리 허용치(10~80)로 변환
+    // 값이 클수록 더 많이 제거 (관대하게)
+    const tolerance = (threshold - 200) * 1.4 + 10;
+    const softEdge = tolerance * 0.4;
+    
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
       
-      // 흰색/밝은색 기준 + 배경색 유사 기준
-      const brightness = (r + g + b) / 3;
-      const distFromBg = Math.sqrt(
+      // 배경색과의 거리만으로 판단 (밝기 기준 제거 → 피부색 보호)
+      const dist = Math.sqrt(
         Math.pow(r - avgR, 2) + 
         Math.pow(g - avgG, 2) + 
         Math.pow(b - avgB, 2)
       );
       
-      if (brightness > threshold || distFromBg < 25) {
-        data[i + 3] = 0; // 완전 투명
-      } else if (brightness > threshold - 25 || distFromBg < 45) {
+      if (dist < tolerance) {
+        // 배경색과 매우 비슷 → 완전 투명
+        data[i + 3] = 0;
+      } else if (dist < tolerance + softEdge) {
         // 가장자리 부드럽게
-        const fade = Math.max(0, Math.min(1, (threshold - brightness) / 25));
+        const fade = (dist - tolerance) / softEdge;
         data[i + 3] = Math.floor(data[i + 3] * fade);
       }
     }
