@@ -428,7 +428,7 @@
   
   <div class="controls" id="controls">
     <div class="help-text">
-      💡 <strong>팁:</strong> 격자가 일정한 시트는 <strong>격자 모드</strong>, 제미나이 등으로 만든 불규칙한 이미지는 <strong>자동 감지 모드</strong>를 쓰세요!
+      💡 <strong>모드:</strong> 균일한 시트는 <strong>격자 모드</strong>, 불규칙한 이미지는 <strong>자동 감지</strong> &nbsp;|&nbsp; <strong>형식:</strong> 깨끗하게 쓰려면 <strong>PNG</strong>, 카톡 투명배경은 <strong>GIF</strong>
     </div>
     <div class="control-row">
       <div class="mode-selector">
@@ -610,6 +610,7 @@
     const rows = parseInt(document.getElementById('rows').value);
     const padding = parseInt(document.getElementById('padding').value);
     const threshold = parseInt(document.getElementById('threshold').value);
+    const format = document.querySelector('input[name="format"]:checked').value;
     
     const cellWidth = originalImage.width / cols;
     const cellHeight = originalImage.height / rows;
@@ -629,11 +630,18 @@
         canvas.height = sh;
         
         ctx.drawImage(originalImage, sx, sy, sw, sh, 0, 0, sw, sh);
-        removeBackground(ctx, canvas.width, canvas.height, threshold);
         
-        const trimmed = trimCanvas(canvas);
-        processedCanvases.push(trimmed);
-        addCellToGrid(trimmed, count);
+        // GIF 모드일 때만 배경 제거
+        // PNG 모드는 원본 그대로 자르기만 (얼굴 얼룩 방지)
+        if (format === 'gif') {
+          removeBackground(ctx, canvas.width, canvas.height, threshold);
+          const trimmed = trimCanvas(canvas);
+          processedCanvases.push(trimmed);
+          addCellToGrid(trimmed, count);
+        } else {
+          processedCanvases.push(canvas);
+          addCellToGrid(canvas, count);
+        }
         count++;
       }
     }
@@ -698,6 +706,7 @@
     });
     
     // 6단계: 각 컴포넌트의 bounding box로 잘라내기
+    const format = document.querySelector('input[name="format"]:checked').value;
     let count = 1;
     components.forEach(comp => {
       const margin = 8;
@@ -712,12 +721,16 @@
       const ctx = canvas.getContext('2d');
       ctx.drawImage(originalImage, sx, sy, sw, sh, 0, 0, sw, sh);
       
-      // 배경 제거 적용
-      removeBackground(ctx, sw, sh, threshold);
-      const trimmed = trimCanvas(canvas);
-      
-      processedCanvases.push(trimmed);
-      addCellToGrid(trimmed, count);
+      // GIF 모드일 때만 배경 제거
+      if (format === 'gif') {
+        removeBackground(ctx, sw, sh, threshold);
+        const trimmed = trimCanvas(canvas);
+        processedCanvases.push(trimmed);
+        addCellToGrid(trimmed, count);
+      } else {
+        processedCanvases.push(canvas);
+        addCellToGrid(canvas, count);
+      }
       count++;
     });
     
