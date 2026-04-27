@@ -762,10 +762,11 @@
       <div class="step-content">
         <h3>이미지 크기 선택</h3>
         <p><strong>📦 원본 크기</strong> — 잘린 그대로 (보통 큼)</p>
-        <p><strong>💬 카톡용 360px</strong> — 카카오 이모티콘 표준 크기 (추천!)</p>
-        <p><strong>📱 중간 500px</strong> — SNS 프로필·일반 용도</p>
+        <p><strong>💬 카톡용 240px</strong> — 카카오톡 이모티콘 딱 좋은 크기 (추천!) ⭐</p>
+        <p><strong>📱 중간 360px</strong> — SNS 프로필·약간 큰 용도</p>
+        <p><strong>🖼️ 큼 500px</strong> — 고화질 보관용</p>
         <p><strong>✏️ 직접 입력</strong> — 원하는 크기 자유 지정</p>
-        <p class="step-tip">📌 카톡에 보낼 거면 <strong>360px</strong> 선택! 화질 손상 없이 깔끔하게 줄여줘요.</p>
+        <p class="step-tip">📌 카톡에 보낼 거면 <strong>240px</strong> 선택! 화질 손상 없이 깔끔하게 줄여줘요.</p>
       </div>
     </div>
     
@@ -796,7 +797,7 @@
       <h3>❓ 자주 묻는 질문</h3>
       <details>
         <summary><strong>Q. 이미지가 너무 커요. 카톡 이모티콘 크기로 줄여주세요</strong></summary>
-        <p>"이미지 크기"에서 <strong>"카톡용 360px"</strong>를 선택하세요! 화질 손상 없이 깔끔하게 축소돼요. 카카오 이모티콘 표준 크기가 360×360px이라서 가장 잘 어울려요.</p>
+        <p>"이미지 크기"에서 <strong>"카톡용 240px"</strong>를 선택하세요! 화질 손상 없이 깔끔하게 축소돼요. 카톡 이모티콘으로 보내기에 240px가 딱 적당한 크기예요.</p>
       </details>
       <details>
         <summary><strong>Q. 얼굴이 얼룩덜룩하게 잘렸어요</strong></summary>
@@ -825,7 +826,7 @@
   
   <div class="controls" id="controls">
     <div class="help-text">
-      💡 <strong>📱 핸드폰:</strong> 이미지 길게 눌러 저장하거나 파란 📤 버튼으로 카톡에 바로 보내세요! &nbsp;|&nbsp; <strong>모드:</strong> 균일한 시트 → <strong>격자</strong>, 불규칙 → <strong>자동 감지</strong> &nbsp;|&nbsp; <strong>크기:</strong> 카톡 이모티콘은 <strong>360px</strong> 추천!
+      💡 <strong>📱 핸드폰:</strong> 이미지 길게 눌러 저장하거나 파란 📤 버튼으로 카톡에 바로 보내세요! &nbsp;|&nbsp; <strong>모드:</strong> 균일한 시트 → <strong>격자</strong>, 불규칙 → <strong>자동 감지</strong> &nbsp;|&nbsp; <strong>크기:</strong> 카톡 이모티콘은 <strong>240px</strong> 추천!
     </div>
     <div class="control-row">
       <div class="mode-selector">
@@ -873,22 +874,26 @@
       <div class="format-selector">
         <label class="format-label">📐 이미지 크기:</label>
         <label class="format-option">
-          <input type="radio" name="resize" value="original" checked>
+          <input type="radio" name="resize" value="original">
           <span>원본 크기 <small>(자른 그대로)</small></span>
         </label>
         <label class="format-option">
+          <input type="radio" name="resize" value="240" checked>
+          <span>카톡용 240px <small>(이모티콘 추천 ⭐)</small></span>
+        </label>
+        <label class="format-option">
           <input type="radio" name="resize" value="360">
-          <span>카톡용 360px <small>(이모티콘 표준)</small></span>
+          <span>중간 360px <small>(SNS용)</small></span>
         </label>
         <label class="format-option">
           <input type="radio" name="resize" value="500">
-          <span>중간 500px <small>(SNS용)</small></span>
+          <span>큼 500px <small>(고화질)</small></span>
         </label>
         <label class="format-option">
           <input type="radio" name="resize" value="custom">
           <span>직접 입력</span>
         </label>
-        <input type="number" id="customSize" value="360" min="50" max="2000" 
+        <input type="number" id="customSize" value="240" min="50" max="2000" 
           style="width: 80px; padding: 6px 10px; border: 2px solid #FFD6E0; border-radius: 8px; font-family: inherit; text-align: center; display: none;">
         <span id="customSizeUnit" style="display: none; color: #888; font-size: 0.9rem;">px</span>
       </div>
