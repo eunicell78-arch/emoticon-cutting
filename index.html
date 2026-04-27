@@ -760,10 +760,12 @@
     <div class="manual-step">
       <div class="step-number">3</div>
       <div class="step-content">
-        <h3>저장 형식 선택</h3>
-        <p><strong>🖼️ PNG</strong> — 원본 그대로 깨끗하게 (블로그·인스타용 추천)</p>
-        <p><strong>🎞️ GIF</strong> — 배경이 투명하게 처리됨 (카톡 보낼 때 추천)</p>
-        <p class="step-tip">📌 카톡에 PNG 보내도 흰 배경이라 잘 보여요!</p>
+        <h3>이미지 크기 선택</h3>
+        <p><strong>📦 원본 크기</strong> — 잘린 그대로 (보통 큼)</p>
+        <p><strong>💬 카톡용 360px</strong> — 카카오 이모티콘 표준 크기 (추천!)</p>
+        <p><strong>📱 중간 500px</strong> — SNS 프로필·일반 용도</p>
+        <p><strong>✏️ 직접 입력</strong> — 원하는 크기 자유 지정</p>
+        <p class="step-tip">📌 카톡에 보낼 거면 <strong>360px</strong> 선택! 화질 손상 없이 깔끔하게 줄여줘요.</p>
       </div>
     </div>
     
@@ -772,7 +774,7 @@
       <div class="step-content">
         <h3>자르기 시작 → 결과 확인</h3>
         <p>분홍색 <strong>"✨ 자르기 시작!"</strong> 버튼 누르면 12개로 잘라서 보여줘요. 마음에 안 들면 위쪽 설정 바꾸고 다시 누르면 됩니다.</p>
-        <p class="step-tip">📌 얼굴이 얼룩덜룩? → PNG 모드로 / 배경 안 지워짐? → GIF + 강도 240</p>
+        <p class="step-tip">📌 결과가 마음에 안 들면 위 설정 바꾸고 다시 누르면 돼요! 격자 안 맞으면 여백 조절, 자동 감지 이상하면 병합 거리 조절하세요.</p>
       </div>
     </div>
     
@@ -793,12 +795,12 @@
     <div class="manual-faq">
       <h3>❓ 자주 묻는 질문</h3>
       <details>
-        <summary><strong>Q. 카톡에 보냈더니 흰 배경이 나와요!</strong></summary>
-        <p>카톡은 일반 이미지에서 투명 배경을 지원하지 않아요. <strong>GIF</strong> 형식으로 저장해서 보내면 투명하게 보여요. PNG는 블로그·인스타에서만 투명하게 보입니다.</p>
+        <summary><strong>Q. 이미지가 너무 커요. 카톡 이모티콘 크기로 줄여주세요</strong></summary>
+        <p>"이미지 크기"에서 <strong>"카톡용 360px"</strong>를 선택하세요! 화질 손상 없이 깔끔하게 축소돼요. 카카오 이모티콘 표준 크기가 360×360px이라서 가장 잘 어울려요.</p>
       </details>
       <details>
         <summary><strong>Q. 얼굴이 얼룩덜룩하게 잘렸어요</strong></summary>
-        <p><strong>PNG 형식</strong>으로 바꿔보세요! PNG는 원본을 건드리지 않고 자르기만 해서 얼굴이 깨끗하게 나와요.</p>
+        <p>이 앱은 원본을 그대로 자르기만 하니까 얼룩이 생길 일이 없어요. 만약 그래 보인다면 <strong>원본 이미지 자체</strong>가 그런 거예요. 깃허브에 올린 새 버전인지 다시 확인하고 강제 새로고침(캐시 삭제) 해보세요.</p>
       </details>
       <details>
         <summary><strong>Q. 다운로드한 파일을 못 찾겠어요 (핸드폰)</strong></summary>
@@ -823,7 +825,7 @@
   
   <div class="controls" id="controls">
     <div class="help-text">
-      💡 <strong>📱 핸드폰:</strong> 이미지 길게 눌러 저장하거나 파란 📤 버튼으로 카톡에 바로 보내세요! &nbsp;|&nbsp; <strong>모드:</strong> 균일한 시트 → <strong>격자</strong>, 불규칙 → <strong>자동 감지</strong> &nbsp;|&nbsp; <strong>형식:</strong> 깨끗하게 → <strong>PNG</strong>, 카톡 투명배경 → <strong>GIF</strong>
+      💡 <strong>📱 핸드폰:</strong> 이미지 길게 눌러 저장하거나 파란 📤 버튼으로 카톡에 바로 보내세요! &nbsp;|&nbsp; <strong>모드:</strong> 균일한 시트 → <strong>격자</strong>, 불규칙 → <strong>자동 감지</strong> &nbsp;|&nbsp; <strong>크기:</strong> 카톡 이모티콘은 <strong>360px</strong> 추천!
     </div>
     <div class="control-row">
       <div class="mode-selector">
@@ -854,10 +856,6 @@
         <input type="number" id="padding" value="10" min="0" max="100">
         <span>px</span>
       </div>
-      <div class="control-group">
-        <label>배경 제거 강도:</label>
-        <input type="number" id="threshold" value="220" min="200" max="255">
-      </div>
     </div>
     <div class="control-row" id="autoControls" style="display:none;">
       <div class="control-group">
@@ -870,22 +868,29 @@
         <input type="number" id="mergeDist" value="30" min="0" max="200">
         <span>px (가까운 객체끼리 묶기)</span>
       </div>
-      <div class="control-group">
-        <label>배경 감도:</label>
-        <input type="number" id="autoThreshold" value="230" min="200" max="255">
-      </div>
     </div>
     <div class="control-row">
       <div class="format-selector">
-        <label class="format-label">📁 저장 형식:</label>
+        <label class="format-label">📐 이미지 크기:</label>
         <label class="format-option">
-          <input type="radio" name="format" value="png" checked>
-          <span>PNG <small>(고화질, SNS·블로그용)</small></span>
+          <input type="radio" name="resize" value="original" checked>
+          <span>원본 크기 <small>(자른 그대로)</small></span>
         </label>
         <label class="format-option">
-          <input type="radio" name="format" value="gif">
-          <span>GIF <small>(카톡 투명배경 ✨)</small></span>
+          <input type="radio" name="resize" value="360">
+          <span>카톡용 360px <small>(이모티콘 표준)</small></span>
         </label>
+        <label class="format-option">
+          <input type="radio" name="resize" value="500">
+          <span>중간 500px <small>(SNS용)</small></span>
+        </label>
+        <label class="format-option">
+          <input type="radio" name="resize" value="custom">
+          <span>직접 입력</span>
+        </label>
+        <input type="number" id="customSize" value="360" min="50" max="2000" 
+          style="width: 80px; padding: 6px 10px; border: 2px solid #FFD6E0; border-radius: 8px; font-family: inherit; text-align: center; display: none;">
+        <span id="customSizeUnit" style="display: none; color: #888; font-size: 0.9rem;">px</span>
       </div>
     </div>
     <div class="control-row">
@@ -912,7 +917,6 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
 <script>
   const fileInput = document.getElementById('fileInput');
   const uploadArea = document.getElementById('uploadArea');
@@ -1004,8 +1008,6 @@
     const cols = parseInt(document.getElementById('cols').value);
     const rows = parseInt(document.getElementById('rows').value);
     const padding = parseInt(document.getElementById('padding').value);
-    const threshold = parseInt(document.getElementById('threshold').value);
-    const format = document.querySelector('input[name="format"]:checked').value;
     
     const cellWidth = originalImage.width / cols;
     const cellHeight = originalImage.height / rows;
@@ -1026,17 +1028,9 @@
         
         ctx.drawImage(originalImage, sx, sy, sw, sh, 0, 0, sw, sh);
         
-        // GIF 모드일 때만 배경 제거
-        // PNG 모드는 원본 그대로 자르기만 (얼굴 얼룩 방지)
-        if (format === 'gif') {
-          removeBackground(ctx, canvas.width, canvas.height, threshold);
-          const trimmed = trimCanvas(canvas);
-          processedCanvases.push(trimmed);
-          addCellToGrid(trimmed, count);
-        } else {
-          processedCanvases.push(canvas);
-          addCellToGrid(canvas, count);
-        }
+        // PNG는 원본 그대로 자르기만 (얼굴 얼룩 방지)
+        processedCanvases.push(canvas);
+        addCellToGrid(canvas, count);
         count++;
       }
     }
@@ -1045,7 +1039,7 @@
   function processAutoMode() {
     const minSize = parseInt(document.getElementById('minSize').value);
     const mergeDist = parseInt(document.getElementById('mergeDist').value);
-    const threshold = parseInt(document.getElementById('autoThreshold').value);
+    const threshold = 230; // 객체 감지를 위한 내부 임계값 (사용자에게는 숨김)
     
     // 1단계: 전체 이미지를 캔버스에 그리기
     const fullCanvas = document.createElement('canvas');
@@ -1101,7 +1095,6 @@
     });
     
     // 6단계: 각 컴포넌트의 bounding box로 잘라내기
-    const format = document.querySelector('input[name="format"]:checked').value;
     let count = 1;
     components.forEach(comp => {
       const margin = 8;
@@ -1116,16 +1109,9 @@
       const ctx = canvas.getContext('2d');
       ctx.drawImage(originalImage, sx, sy, sw, sh, 0, 0, sw, sh);
       
-      // GIF 모드일 때만 배경 제거
-      if (format === 'gif') {
-        removeBackground(ctx, sw, sh, threshold);
-        const trimmed = trimCanvas(canvas);
-        processedCanvases.push(trimmed);
-        addCellToGrid(trimmed, count);
-      } else {
-        processedCanvases.push(canvas);
-        addCellToGrid(canvas, count);
-      }
+      // PNG는 원본 그대로 자르기만
+      processedCanvases.push(canvas);
+      addCellToGrid(canvas, count);
       count++;
     });
     
@@ -1242,8 +1228,7 @@
     shareBtn.title = '공유하기';
     shareBtn.onclick = async (e) => {
       e.preventDefault();
-      const format = document.querySelector('input[name="format"]:checked').value;
-      await shareCanvas(trimmed, count, format);
+      await shareCanvas(trimmed, count);
     };
     cell.appendChild(shareBtn);
     
@@ -1254,12 +1239,7 @@
     dlBtn.title = '다운로드';
     dlBtn.onclick = (e) => {
       e.preventDefault();
-      const format = document.querySelector('input[name="format"]:checked').value;
-      if (format === 'gif') {
-        downloadAsGif(trimmed, `emoticon_${String(count).padStart(2, '0')}.gif`);
-      } else {
-        downloadCanvas(trimmed, `emoticon_${String(count).padStart(2, '0')}.png`);
-      }
+      downloadCanvas(trimmed, `emoticon_${String(count).padStart(2, '0')}.png`);
     };
     cell.appendChild(dlBtn);
     
@@ -1267,21 +1247,12 @@
   }
   
   // 공유 API (카톡, 사진 저장 등 OS 공유 메뉴 호출)
-  async function shareCanvas(canvas, count, format) {
+  async function shareCanvas(canvas, count) {
     try {
-      let blob, filename, mimeType;
-      
-      if (format === 'gif') {
-        blob = await canvasToGifBlob(canvas);
-        filename = `emoticon_${String(count).padStart(2, '0')}.gif`;
-        mimeType = 'image/gif';
-      } else {
-        blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-        filename = `emoticon_${String(count).padStart(2, '0')}.png`;
-        mimeType = 'image/png';
-      }
-      
-      const file = new File([blob], filename, { type: mimeType });
+      const resized = resizeCanvasIfNeeded(canvas);
+      const blob = await new Promise(resolve => resized.toBlob(resolve, 'image/png'));
+      const filename = `emoticon_${String(count).padStart(2, '0')}.png`;
+      const file = new File([blob], filename, { type: 'image/png' });
       
       // 모바일: 공유 API 사용 (카톡, 사진 저장 등)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -1312,6 +1283,16 @@
       const mode = document.querySelector('input[name="mode"]:checked').value;
       document.getElementById('gridControls').style.display = mode === 'grid' ? 'flex' : 'none';
       document.getElementById('autoControls').style.display = mode === 'auto' ? 'flex' : 'none';
+    });
+  });
+  
+  // 리사이즈 직접 입력 토글
+  document.querySelectorAll('input[name="resize"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const value = document.querySelector('input[name="resize"]:checked').value;
+      const isCustom = value === 'custom';
+      document.getElementById('customSize').style.display = isCustom ? 'inline-block' : 'none';
+      document.getElementById('customSizeUnit').style.display = isCustom ? 'inline' : 'none';
     });
   });
   
@@ -1418,7 +1399,8 @@
   }
   
   function downloadCanvas(canvas, filename) {
-    canvas.toBlob((blob) => {
+    const resized = resizeCanvasIfNeeded(canvas);
+    resized.toBlob((blob) => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -1428,105 +1410,91 @@
     }, 'image/png');
   }
   
-  // Canvas를 투명 배경 GIF Blob으로 변환
-  function canvasToGifBlob(canvas) {
-    return new Promise((resolve, reject) => {
-      const gif = new GIF({
-        workers: 2,
-        quality: 1,
-        width: canvas.width,
-        height: canvas.height,
-        transparent: 0xFFFFFF, // 흰색을 투명으로 처리
-        workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
-      });
-      
-      // 투명 픽셀을 흰색으로 먼저 채우고 (GIF는 알파를 지원 안 함)
-      // 실제 이미지 픽셀은 그대로 두기 위해 새 캔버스 생성
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
-      const tempCtx = tempCanvas.getContext('2d');
-      
-      // 원본 이미지 데이터 가져오기
-      const srcCtx = canvas.getContext('2d');
-      const srcData = srcCtx.getImageData(0, 0, canvas.width, canvas.height);
-      const newData = tempCtx.createImageData(canvas.width, canvas.height);
-      
-      // 알파가 낮으면 흰색(투명 처리될 색)으로, 높으면 원본 색상 유지
-      for (let i = 0; i < srcData.data.length; i += 4) {
-        const alpha = srcData.data[i + 3];
-        if (alpha < 128) {
-          // 투명 영역 → 흰색으로 (GIF에서 투명 처리됨)
-          newData.data[i] = 255;
-          newData.data[i + 1] = 255;
-          newData.data[i + 2] = 255;
-          newData.data[i + 3] = 255;
-        } else {
-          // 불투명 영역 → 원본 색상, 단 흰색에 가까우면 살짝 어둡게 (투명 처리 방지)
-          let r = srcData.data[i];
-          let g = srcData.data[i + 1];
-          let b = srcData.data[i + 2];
-          if (r > 250 && g > 250 && b > 250) {
-            r = g = b = 250; // 흰색 보호
-          }
-          newData.data[i] = r;
-          newData.data[i + 1] = g;
-          newData.data[i + 2] = b;
-          newData.data[i + 3] = 255;
-        }
-      }
-      tempCtx.putImageData(newData, 0, 0);
-      
-      gif.addFrame(tempCanvas, { delay: 100 });
-      
-      gif.on('finished', (blob) => resolve(blob));
-      gif.on('abort', () => reject(new Error('GIF 변환 취소됨')));
-      
-      gif.render();
-    });
+  // 선택된 크기로 리사이즈 (필요 시)
+  function getTargetSize() {
+    const resizeMode = document.querySelector('input[name="resize"]:checked').value;
+    if (resizeMode === 'original') return null;
+    if (resizeMode === 'custom') {
+      return parseInt(document.getElementById('customSize').value) || 360;
+    }
+    return parseInt(resizeMode);
   }
   
-  async function downloadAsGif(canvas, filename) {
-    try {
-      const blob = await canvasToGifBlob(canvas);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      alert('GIF 변환 중 오류가 발생했어요: ' + err.message);
+  function resizeCanvasIfNeeded(canvas) {
+    const targetSize = getTargetSize();
+    if (!targetSize) return canvas;
+    
+    // 이미 그 크기보다 작으면 키우지 않음 (화질 보호)
+    const longSide = Math.max(canvas.width, canvas.height);
+    if (longSide <= targetSize) return canvas;
+    
+    return highQualityResize(canvas, targetSize);
+  }
+  
+  // 고품질 리사이즈 - 단계적 축소(stepwise downscaling)로 화질 유지
+  // 한 번에 작게 줄이지 않고 50%씩 여러 번 줄이면 안티앨리어싱이 더 좋음
+  function highQualityResize(srcCanvas, targetLongSide) {
+    const srcW = srcCanvas.width;
+    const srcH = srcCanvas.height;
+    
+    // 긴 변 기준 비율 계산
+    const ratio = targetLongSide / Math.max(srcW, srcH);
+    const targetW = Math.round(srcW * ratio);
+    const targetH = Math.round(srcH * ratio);
+    
+    // 단계적 축소: 50%씩 줄이면서 점진적으로 목표 크기로 접근
+    let currentCanvas = srcCanvas;
+    let currentW = srcW;
+    let currentH = srcH;
+    
+    while (currentW * 0.5 > targetW) {
+      const newW = Math.round(currentW * 0.5);
+      const newH = Math.round(currentH * 0.5);
+      
+      const stepCanvas = document.createElement('canvas');
+      stepCanvas.width = newW;
+      stepCanvas.height = newH;
+      const stepCtx = stepCanvas.getContext('2d');
+      stepCtx.imageSmoothingEnabled = true;
+      stepCtx.imageSmoothingQuality = 'high';
+      stepCtx.drawImage(currentCanvas, 0, 0, currentW, currentH, 0, 0, newW, newH);
+      
+      currentCanvas = stepCanvas;
+      currentW = newW;
+      currentH = newH;
     }
+    
+    // 마지막 단계: 정확한 목표 크기로
+    const finalCanvas = document.createElement('canvas');
+    finalCanvas.width = targetW;
+    finalCanvas.height = targetH;
+    const finalCtx = finalCanvas.getContext('2d');
+    finalCtx.imageSmoothingEnabled = true;
+    finalCtx.imageSmoothingQuality = 'high';
+    finalCtx.drawImage(currentCanvas, 0, 0, currentW, currentH, 0, 0, targetW, targetH);
+    
+    return finalCanvas;
   }
   
   downloadAllBtn.addEventListener('click', async () => {
     if (processedCanvases.length === 0) return;
     
-    const format = document.querySelector('input[name="format"]:checked').value;
-    
     downloadAllBtn.disabled = true;
-    downloadAllBtn.textContent = format === 'gif' ? '🎞️ GIF 변환 중... (조금 걸려요)' : '📦 압축 중...';
+    downloadAllBtn.textContent = '📦 압축 중...';
     
     const zip = new JSZip();
     
     for (let i = 0; i < processedCanvases.length; i++) {
-      if (format === 'gif') {
-        downloadAllBtn.textContent = `🎞️ GIF 변환 중... (${i + 1}/${processedCanvases.length})`;
-        const blob = await canvasToGifBlob(processedCanvases[i]);
-        zip.file(`emoticon_${String(i + 1).padStart(2, '0')}.gif`, blob);
-      } else {
-        const blob = await new Promise(resolve => processedCanvases[i].toBlob(resolve, 'image/png'));
-        zip.file(`emoticon_${String(i + 1).padStart(2, '0')}.png`, blob);
-      }
+      const resized = resizeCanvasIfNeeded(processedCanvases[i]);
+      const blob = await new Promise(resolve => resized.toBlob(resolve, 'image/png'));
+      zip.file(`emoticon_${String(i + 1).padStart(2, '0')}.png`, blob);
     }
     
-    downloadAllBtn.textContent = '📦 압축 중...';
     const content = await zip.generateAsync({ type: 'blob' });
     const url = URL.createObjectURL(content);
     const a = document.createElement('a');
     a.href = url;
-    a.download = format === 'gif' ? 'emoticons_gif.zip' : 'emoticons_png.zip';
+    a.download = 'emoticons.zip';
     a.click();
     URL.revokeObjectURL(url);
     
