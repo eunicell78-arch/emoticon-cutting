@@ -644,7 +644,8 @@
   }
   
   .format-selector,
-  .mode-selector {
+  .mode-selector,
+  .preset-group {
     display: flex;
     align-items: center;
     gap: 15px;
@@ -657,6 +658,36 @@
   
   .mode-selector {
     background: #F0F9FF;
+  }
+  
+  .preset-group {
+    background: #F5F0FF;
+    gap: 8px;
+  }
+  
+  .preset-btn {
+    background: white;
+    border: 2px solid #D6C5FF;
+    color: #6B4FBB;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .preset-btn:hover {
+    background: #EDE3FF;
+    transform: translateY(-1px);
+  }
+  
+  .preset-btn.active {
+    background: linear-gradient(135deg, #9B7EE0, #B89DEF);
+    color: white;
+    border-color: #9B7EE0;
+    box-shadow: 0 3px 10px rgba(155, 126, 224, 0.3);
   }
   
   .format-label {
@@ -751,9 +782,9 @@
       <div class="step-number">2</div>
       <div class="step-content">
         <h3>자르기 모드 선택</h3>
-        <p><strong>📐 격자 모드</strong> — 12개가 가지런히 4×3으로 배치된 시트일 때</p>
+        <p><strong>📐 격자 모드</strong> — 가지런히 배치된 시트일 때 (12컷, 16컷, 9컷, 4컷, 20컷 모두 가능!)</p>
         <p><strong>🎯 자동 감지</strong> — 제미나이처럼 글자랑 그림이 자유롭게 흩어진 이미지일 때</p>
-        <p class="step-tip">📌 잘 모르겠으면 <strong>격자 모드</strong>부터 해보세요!</p>
+        <p class="step-tip">📌 격자 모드에서는 <strong>"⚡ 빠른 선택"</strong> 버튼으로 한 번에 4×3, 4×4 같은 배치를 고를 수 있어요!</p>
       </div>
     </div>
     
@@ -842,6 +873,16 @@
       </div>
     </div>
     <div class="control-row" id="gridControls">
+      <div class="preset-group">
+        <label class="format-label">⚡ 빠른 선택:</label>
+        <button type="button" class="preset-btn" data-cols="4" data-rows="3">4×3 (12컷)</button>
+        <button type="button" class="preset-btn" data-cols="4" data-rows="4">4×4 (16컷)</button>
+        <button type="button" class="preset-btn" data-cols="3" data-rows="3">3×3 (9컷)</button>
+        <button type="button" class="preset-btn" data-cols="2" data-rows="2">2×2 (4컷)</button>
+        <button type="button" class="preset-btn" data-cols="5" data-rows="4">5×4 (20컷)</button>
+      </div>
+    </div>
+    <div class="control-row" id="gridControlsDetail">
       <div class="control-group">
         <label>가로:</label>
         <input type="number" id="cols" value="4" min="1" max="10">
@@ -1286,10 +1327,29 @@
   document.querySelectorAll('input[name="mode"]').forEach(radio => {
     radio.addEventListener('change', () => {
       const mode = document.querySelector('input[name="mode"]:checked').value;
-      document.getElementById('gridControls').style.display = mode === 'grid' ? 'flex' : 'none';
-      document.getElementById('autoControls').style.display = mode === 'auto' ? 'flex' : 'none';
+      const isGrid = mode === 'grid';
+      document.getElementById('gridControls').style.display = isGrid ? 'flex' : 'none';
+      document.getElementById('gridControlsDetail').style.display = isGrid ? 'flex' : 'none';
+      document.getElementById('autoControls').style.display = isGrid ? 'none' : 'flex';
     });
   });
+  
+  // 프리셋 버튼 클릭 → 가로/세로 입력란 자동 채움
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cols = btn.dataset.cols;
+      const rows = btn.dataset.rows;
+      document.getElementById('cols').value = cols;
+      document.getElementById('rows').value = rows;
+      
+      // 활성화된 프리셋 시각적 표시
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+  
+  // 페이지 로드 시 4x3을 기본 활성화
+  document.querySelector('.preset-btn[data-cols="4"][data-rows="3"]').classList.add('active');
   
   // 리사이즈 직접 입력 토글
   document.querySelectorAll('input[name="resize"]').forEach(radio => {
