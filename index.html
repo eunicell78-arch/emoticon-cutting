@@ -782,9 +782,10 @@
       <div class="step-number">2</div>
       <div class="step-content">
         <h3>자르기 모드 선택</h3>
-        <p><strong>📐 격자 모드</strong> — 가지런히 배치된 시트일 때 (12컷 가로/세로, 16컷, 9컷, 4컷, 20컷 모두 가능!)</p>
-        <p><strong>🎯 자동 감지</strong> — 제미나이처럼 글자랑 그림이 자유롭게 흩어진 이미지일 때</p>
-        <p class="step-tip">📌 12컷 시트는 두 종류! <strong>가로형(4×3)</strong>은 가로가 더 길고, <strong>세로형(3×4)</strong>은 세로가 더 길어요. 이미지 보고 선택하세요!</p>
+        <p><strong>✨ 스마트 격자 (추천!)</strong> — 격자로 영역 나누고, 각 칸에서 글자+그림만 정확히 잘라냄. 흰 여백 없이 깔끔!</p>
+        <p><strong>📐 격자 모드</strong> — 단순히 균등하게 자르기 (글자가 셀 경계에 걸리면 잘릴 수 있음)</p>
+        <p><strong>🎯 자동 감지</strong> — 그림 사이 여백이 충분한 이미지에 적합</p>
+        <p class="step-tip">📌 <strong>이미지가 어떤 형태이든 ✨ 스마트 격자가 거의 다 잘 됩니다!</strong> 12컷이면 4×3 또는 3×4 선택해보세요.</p>
       </div>
     </div>
     
@@ -857,18 +858,22 @@
   
   <div class="controls" id="controls">
     <div class="help-text">
-      💡 <strong>📱 핸드폰:</strong> 이미지 길게 눌러 저장하거나 파란 📤 버튼으로 카톡에 바로 보내세요! &nbsp;|&nbsp; <strong>모드:</strong> 균일한 시트 → <strong>격자</strong>, 불규칙 → <strong>자동 감지</strong> &nbsp;|&nbsp; <strong>크기:</strong> 카톡 이모티콘은 <strong>240px</strong> 추천!
+      💡 <strong>📱 핸드폰:</strong> 이미지 길게 눌러 저장하거나 파란 📤 버튼으로 카톡에 바로 보내세요! &nbsp;|&nbsp; <strong>모드:</strong> 대부분 → <strong>✨ 스마트 격자</strong>, 단순 분할 → <strong>격자</strong>, 여백 많은 이미지 → <strong>자동 감지</strong>
     </div>
     <div class="control-row">
       <div class="mode-selector">
         <label class="format-label">✂️ 자르기 모드:</label>
         <label class="format-option">
-          <input type="radio" name="mode" value="grid" checked>
-          <span>격자 모드 <small>(균일한 12분할)</small></span>
+          <input type="radio" name="mode" value="smart" checked>
+          <span>✨ 스마트 격자 <small>(추천! 격자+객체 정확히 인식)</small></span>
+        </label>
+        <label class="format-option">
+          <input type="radio" name="mode" value="grid">
+          <span>격자 모드 <small>(단순 균등 분할)</small></span>
         </label>
         <label class="format-option">
           <input type="radio" name="mode" value="auto">
-          <span>자동 감지 <small>(불규칙·제미나이 이미지)</small></span>
+          <span>자동 감지 <small>(여백이 충분한 이미지)</small></span>
         </label>
       </div>
     </div>
@@ -1039,7 +1044,9 @@
     setTimeout(() => {
       const mode = document.querySelector('input[name="mode"]:checked').value;
       
-      if (mode === 'grid') {
+      if (mode === 'smart') {
+        processSmartGridMode();
+      } else if (mode === 'grid') {
         processGridMode();
       } else {
         processAutoMode();
@@ -1049,6 +1056,149 @@
       previewSection.classList.add('active');
       previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
+  }
+  
+  // ✨ 스마트 격자 모드: 격자로 영역 나눈 뒤, 각 셀 안에서 실제 객체(글자+그림)만 찾아서 정확히 잘라냄
+  // 셀 경계에 걸친 글자도 따라가서 포함시킴
+  function processSmartGridMode() {
+    const cols = parseInt(document.getElementById('cols').value);
+    const rows = parseInt(document.getElementById('rows').value);
+    
+    // 1. 전체 이미지 픽셀 데이터를 한 번만 가져오기
+    const fullCanvas = document.createElement('canvas');
+    fullCanvas.width = originalImage.width;
+    fullCanvas.height = originalImage.height;
+    const fullCtx = fullCanvas.getContext('2d');
+    fullCtx.drawImage(originalImage, 0, 0);
+    const imageData = fullCtx.getImageData(0, 0, fullCanvas.width, fullCanvas.height);
+    const data = imageData.data;
+    const w = fullCanvas.width;
+    const h = fullCanvas.height;
+    
+    // 2. 모서리 색상으로 배경색 추정
+    const cornerSize = 20;
+    let avgR = 0, avgG = 0, avgB = 0, sampleCount = 0;
+    [[0,0],[w-cornerSize,0],[0,h-cornerSize],[w-cornerSize,h-cornerSize]].forEach(([sx,sy]) => {
+      for (let y = sy; y < sy + cornerSize && y < h; y++) {
+        for (let x = sx; x < sx + cornerSize && x < w; x++) {
+          const idx = (y * w + x) * 4;
+          avgR += data[idx]; avgG += data[idx+1]; avgB += data[idx+2];
+          sampleCount++;
+        }
+      }
+    });
+    avgR /= sampleCount; avgG /= sampleCount; avgB /= sampleCount;
+    
+    // 3. 객체 픽셀 마스크 만들기 (배경색이 아닌 모든 픽셀)
+    const tolerance = 35;
+    const mask = new Uint8Array(w * h);
+    for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+      const dist = Math.sqrt(
+        Math.pow(data[i] - avgR, 2) + 
+        Math.pow(data[i+1] - avgG, 2) + 
+        Math.pow(data[i+2] - avgB, 2)
+      );
+      mask[j] = dist > tolerance ? 1 : 0;
+    }
+    
+    // 4. 격자 셀 영역 정의
+    const cellWidth = w / cols;
+    const cellHeight = h / rows;
+    
+    let count = 1;
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        // 셀의 중심 영역 (셀 크기의 60% — 이 영역 안의 객체만 이 셀의 것으로 간주)
+        const cellCenterX = (col + 0.5) * cellWidth;
+        const cellCenterY = (row + 0.5) * cellHeight;
+        const innerLeft = col * cellWidth + cellWidth * 0.2;
+        const innerRight = (col + 1) * cellWidth - cellWidth * 0.2;
+        const innerTop = row * cellHeight + cellHeight * 0.2;
+        const innerBottom = (row + 1) * cellHeight - cellHeight * 0.2;
+        
+        // 5. 셀 중심 영역에서 시작하는 객체 픽셀들 찾고, 연결된 픽셀들을 따라감 (BFS)
+        // 단, 다른 셀 중심 영역으로 너무 깊이 들어가면 멈춤
+        const visited = new Uint8Array(w * h);
+        const queue = [];
+        
+        // 셀 중심 영역 안의 모든 객체 픽셀을 시드로 추가
+        for (let y = Math.floor(innerTop); y < innerBottom && y < h; y++) {
+          for (let x = Math.floor(innerLeft); x < innerRight && x < w; x++) {
+            const idx = y * w + x;
+            if (mask[idx] && !visited[idx]) {
+              queue.push([x, y]);
+              visited[idx] = 1;
+            }
+          }
+        }
+        
+        if (queue.length === 0) {
+          // 객체가 없으면 그냥 셀 그대로 자르기
+          const canvas = document.createElement('canvas');
+          canvas.width = cellWidth;
+          canvas.height = cellHeight;
+          canvas.getContext('2d').drawImage(originalImage, col * cellWidth, row * cellHeight, cellWidth, cellHeight, 0, 0, cellWidth, cellHeight);
+          processedCanvases.push(canvas);
+          addCellToGrid(canvas, count);
+          count++;
+          continue;
+        }
+        
+        // 6. BFS로 객체 픽셀 확장 (셀 경계 약간 넘어도 OK, 단 다음 셀 중심으로는 못 넘어감)
+        let minX = w, maxX = 0, minY = h, maxY = 0;
+        const cellLeft = col * cellWidth;
+        const cellRight = (col + 1) * cellWidth;
+        const cellTop = row * cellHeight;
+        const cellBottom = (row + 1) * cellHeight;
+        
+        // 객체가 셀 경계를 넘어갈 수 있는 최대 거리 (셀 크기의 30%까지 허용)
+        const maxOverflow = Math.min(cellWidth, cellHeight) * 0.3;
+        
+        while (queue.length > 0) {
+          const [cx, cy] = queue.shift();
+          
+          if (cx < minX) minX = cx;
+          if (cx > maxX) maxX = cx;
+          if (cy < minY) minY = cy;
+          if (cy > maxY) maxY = cy;
+          
+          // 4방향 이웃
+          const neighbors = [[cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]];
+          for (const [nx, ny] of neighbors) {
+            if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue;
+            
+            // 인접 셀의 중심 영역으로는 넘어가지 않음
+            if (nx < cellLeft - maxOverflow || nx >= cellRight + maxOverflow) continue;
+            if (ny < cellTop - maxOverflow || ny >= cellBottom + maxOverflow) continue;
+            
+            const nidx = ny * w + nx;
+            if (mask[nidx] && !visited[nidx]) {
+              visited[nidx] = 1;
+              queue.push([nx, ny]);
+            }
+          }
+        }
+        
+        // 7. 바운딩 박스에 약간의 여백 추가
+        const margin = 8;
+        const sx = Math.max(0, minX - margin);
+        const sy = Math.max(0, minY - margin);
+        const ex = Math.min(w - 1, maxX + margin);
+        const ey = Math.min(h - 1, maxY + margin);
+        const sw = ex - sx + 1;
+        const sh = ey - sy + 1;
+        
+        // 8. 정확한 바운딩 박스로 자르기
+        const canvas = document.createElement('canvas');
+        canvas.width = sw;
+        canvas.height = sh;
+        canvas.getContext('2d').drawImage(originalImage, sx, sy, sw, sh, 0, 0, sw, sh);
+        
+        processedCanvases.push(canvas);
+        addCellToGrid(canvas, count);
+        count++;
+      }
+    }
   }
   
   function processGridMode() {
@@ -1328,10 +1478,11 @@
   document.querySelectorAll('input[name="mode"]').forEach(radio => {
     radio.addEventListener('change', () => {
       const mode = document.querySelector('input[name="mode"]:checked').value;
-      const isGrid = mode === 'grid';
-      document.getElementById('gridControls').style.display = isGrid ? 'flex' : 'none';
-      document.getElementById('gridControlsDetail').style.display = isGrid ? 'flex' : 'none';
-      document.getElementById('autoControls').style.display = isGrid ? 'none' : 'flex';
+      // 스마트와 격자 둘 다 가로/세로 입력 필요
+      const needsGrid = (mode === 'smart' || mode === 'grid');
+      document.getElementById('gridControls').style.display = needsGrid ? 'flex' : 'none';
+      document.getElementById('gridControlsDetail').style.display = needsGrid ? 'flex' : 'none';
+      document.getElementById('autoControls').style.display = mode === 'auto' ? 'flex' : 'none';
     });
   });
   
